@@ -22,11 +22,6 @@
 │   ├── popup.html             # 弹出窗口界面
 │   ├── popup.js               # 弹出窗口逻辑（开关、设置）
 │   ├── content.js             # 内容脚本（注入 GitHub 页面）
-│   └── chajian/               # 可直接加载的扩展目录
-│       ├── manifest.json
-│       ├── popup.html
-│       ├── popup.js
-│       └── content.js
 ├── 后端代码/
 │   ├── domain_get.py          # Flask 服务入口（API 路由）
 │   ├── svm_predictor.py       # SVM 模型预测器
