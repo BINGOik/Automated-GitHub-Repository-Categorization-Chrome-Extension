@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Domain Classifier</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      width: 320px;
+      color: #111;
+      background: #fff;
+    }
+    .wrap { padding: 12px; }
+    .row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+    }
+    .title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+    .icon-btn{
+      border: 1px solid #e5e5e5;
+      background: #fff;
+      border-radius: 10px;
+      width: 34px; height: 34px;
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn:hover{ background:#f7f7f7; }
+    .divider { height: 1px; background: #eee; margin: 12px 0; }
+
+    /* Toggle */
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+    .switch input { display:none; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background-color: #cfcfcf; border-radius: 999px;
+      transition: .2s;
+    }
+    .slider:before {
+      content: "";
+      position: absolute; height: 20px; width: 20px;
+      left: 3px; top: 3px;
+      background-color: white; border-radius: 50%;
+      transition: .2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,.2);
+    }
+    input:checked + .slider { background-color: #22c55e; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* Settings panel */
+    .panel { display: none; }
+    .panel.show { display: block; }
+    label { display:block; font-size: 12px; color:#333; margin: 10px 0 6px; }
+    input[type="password"], input[type="text"]{
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+    input:focus{ border-color:#999; }
+    .btns { display:flex; gap: 8px; margin-top: 12px; }
+    button.primary{
+      flex: 1;
+      border: none;
+      background: #111;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    button.ghost{
+      border: 1px solid #ddd;
+      background: #fff;
+      color:#111;
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .msg { margin-top: 10px; font-size: 12px; color:#0a7; display:none; }
+    .err { margin-top: 10px; font-size: 12px; color:#d11; display:none; }
+    .hint { font-size: 11px; color:#666; margin-top: 8px; line-height: 1.4; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <div class="title">Domain Classifier</div>
+        <div class="sub">开启后自动在 GitHub 仓库名旁显示主分类</div>
+      </div>
+
+      <button id="settingsBtn" class="icon-btn" title="设置" aria-label="设置">
+        <!-- gear icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z" stroke="#111" stroke-width="1.8"/>
+          <path d="M19.4 15a7.97 7.97 0 0 0 .1-6l2-1.5-2-3.5-2.4 1a8.1 8.1 0 0 0-5.2-3L11.5 0h-4L7 2a8.1 8.1 0 0 0-4.5 3L.1 4.5l-2 3.5 2 1.5a8 8 0 0 0 0 6l-2 1.5 2 3.5 2.4-1A8.1 8.1 0 0 0 7 22l.5 2h4l.4-2a8.1 8.1 0 0 0 5.2-3l2.4 1 2-3.5-2-1.5Z"
+                stroke="#111" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div id="mainPanel" class="panel show">
+      <div class="row">
+        <div style="font-weight:700;">插件开关</div>
+        <label class="switch" style="margin:0;">
+          <input id="enabledToggle" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="hint">
+        后端地址默认：<span class="kbd">http://127.0.0.1:8000/domain</span><br/>
+        开启后刷新 GitHub 仓库页即可看到分类徽标。
+      </div>
+    </div>
+
+    <div id="settingsPanel" class="panel">
+      <div style="font-weight:800;margin-bottom:8px;">设置</div>
+
+      <label for="openaiKey">ChatGPT API Key（可选）</label>
+      <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off"/>
+
+      <label for="githubToken">GitHub Token（可选）</label>
+      <input id="githubToken" type="password" placeholder="github_pat_..." autocomplete="off"/>
+
+      <div class="btns">
+        <button id="saveBtn" class="primary">保存</button>
+        <button id="backBtn" class="ghost">返回</button>
+      </div>
+
+      <div id="okMsg" class="msg">已保存 ✅</div>
+      <div id="errMsg" class="err"></div>
+
+      <div class="hint">
+        Token 将保存在浏览器扩展的 <span class="kbd">storage</span> 中。<br/>
+        若你后端已在服务端保存 Token，也可以留空。
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
