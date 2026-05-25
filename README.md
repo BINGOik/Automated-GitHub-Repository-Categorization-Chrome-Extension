@@ -87,7 +87,7 @@ python domain_get.py
 1. 打开 Chrome 浏览器，进入 `chrome://extensions/`
 2. 开启右上角 **开发者模式**
 3. 点击 **加载未打包的扩展程序**
-4. 选择 `前端代码/chajian/` 目录
+4. 选择 `前端代码/` 目录
 5. 扩展安装完成，工具栏出现 Domain Classifier 图标
 
 ## 使用说明
