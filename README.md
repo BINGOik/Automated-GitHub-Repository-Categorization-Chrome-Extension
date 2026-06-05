@@ -599,10 +599,16 @@ curl -X POST "http://127.0.0.1:8000/domain" \
 插件支持的页面包括：
 
 - GitHub 仓库详情页；
+
+![repo](./assets/demo-repo-page.png)
+
 - GitHub Search 结果页；
-- GitHub Trending 页面；
-- GitHub Topics 页面；
+
+![search](./assets/demo-search-page.png)
+
 - GitHub Explore 页面。
+
+![popup](./assets/demo-popup.png)
 
 ---
 
