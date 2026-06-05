@@ -1,11 +1,31 @@
-﻿{
+{
   "name": "automated-github-repository-categorization-chrome-extension",
   "version": "1.0.0",
   "description": "A Chrome Extension and Flask backend for automated GitHub repository domain classification.",
   "private": true,
-  "scripts": {
-    "test": "echo \"No JavaScript test runner configured yet\"",
-    "test:python": "pytest tests/ -v"
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20",
+    "python": ">=3.12"
   },
+  "scripts": {
+    "test": "npm run check",
+    "check": "npm run lint:extension && npm run validate:manifest && npm run test:python",
+    "lint:extension": "node --check extension/content.js && node --check extension/popup.js",
+    "validate:manifest": "node -e \"const fs=require('fs'); const path='extension/manifest.json'; JSON.parse(fs.readFileSync(path,'utf8')); console.log(path + ' is valid JSON');\"",
+    "test:python": "pytest tests/ -v",
+    "test:coverage": "pytest tests/ --cov=backend --cov-report=term-missing --cov-report=html",
+    "test:unit": "pytest tests/ -m unit -v",
+    "test:integration": "pytest tests/ -m integration -v",
+    "test:extension": "pytest tests/extension -m extension -v"
+  },
+  "keywords": [
+    "chrome-extension",
+    "github",
+    "repository-classification",
+    "flask",
+    "svm",
+    "llm"
+  ],
   "devDependencies": {}
 }
