@@ -1,0 +1,11 @@
+﻿{
+  "name": "automated-github-repository-categorization-chrome-extension",
+  "version": "1.0.0",
+  "description": "A Chrome Extension and Flask backend for automated GitHub repository domain classification.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No JavaScript test runner configured yet\"",
+    "test:python": "pytest tests/ -v"
+  },
+  "devDependencies": {}
+}

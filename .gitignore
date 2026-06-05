@@ -1,0 +1,26 @@
+﻿# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment
+.env
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Build / coverage
+dist/
+build/
+coverage/

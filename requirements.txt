@@ -1,0 +1,10 @@
+﻿flask
+flask-cors
+requests
+numpy
+scikit-learn
+joblib
+python-dotenv
+openai
+pytest
+pytest-cov
