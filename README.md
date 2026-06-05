@@ -26,15 +26,15 @@ GitHub Repository Domain Classifier 是一个面向 GitHub 开源仓库浏览场
 - 使用 SVM + LLM 的协同策略提升低置信样本判断能力；
 - 提供本地后端 API，便于扩展到批量分类、研究数据标注等场景。
 
-### 用例图
+### 1.1 用例图
 
 ![Use Case Diagram](./assets/use-case-diagram.png)
 
-### 需求顺序图
+### 1.2 需求顺序图
 
 ![Requirement Sequence Diagram](./assets/requirement-sequence-diagram.png)
 
-### 核心用例
+### 1.3 核心用例
 
 | 用户角色 | 使用目标 | 项目能力 |
 |---|---|---|
@@ -135,7 +135,7 @@ else:
 
 ![Performance Comparison](./assets/performance-comparison.png)
 
-### 方法对比结果
+### 4.1 方法对比结果
 
 | 方法 | Accuracy | Precision | F1-score |
 |---|---:|---:|---:|
@@ -149,7 +149,7 @@ else:
 
 交互式蒸馏方法通过小模型承担主要推理任务，通过大模型修正低置信样本，在分类准确性、工程效率和调用成本之间取得了更好的平衡。
 
-### 指标说明
+### 4.2 指标说明
 
 | 指标 | 含义 |
 |---|---|
@@ -165,7 +165,7 @@ else:
 
 ![System Architecture](./assets/system-architecture.png)
 
-### 技术架构
+### 5.1 技术架构
 
 | 层级 | 模块 | 主要职责 |
 |---|---|---|
@@ -177,7 +177,7 @@ else:
 | 二次判定层 | GPT / Kimi Refiner | 对低置信样本进行语义判断 |
 | 结果展示层 | Badge Renderer | 在 GitHub 页面中展示分类结果 |
 
-### 核心功能
+### 5.2 核心功能
 
 - 仓库详情页分类：在 GitHub 仓库标题附近展示领域徽标；
 - 列表页批量分类：支持 Search、Trending、Topics、Explore 等页面；
@@ -288,7 +288,7 @@ POST /domain
 
 ## 7. 测试
 
-### 测试套件概览
+### 7.1 测试套件概览
 
 项目测试覆盖后端分类服务、GitHub 数据获取、特征抽取、模型推理、LLM 二次判定、Chrome 插件页面解析和端到端分类链路。
 
@@ -302,7 +302,7 @@ POST /domain
 | Chrome 插件 | 8 | 仓库页面解析、徽标渲染、配置读取 |
 | 集成测试 | 5 | 从 GitHub 页面到分类结果展示的完整链路 |
 
-### 运行测试
+### 7.2 运行测试
 
 安装测试依赖：
 
@@ -349,7 +349,7 @@ pytest tests/backend/test_api_classify.py -v
 pytest tests/integration/test_end_to_end_classification.py -v
 ```
 
-### 测试覆盖率目标
+### 7.3 测试覆盖率目标
 
 - 目标覆盖率：>80%
 - 当前覆盖率：查看 `htmlcov/index.html` 获取详细报告
@@ -363,7 +363,7 @@ pytest tests/integration/test_end_to_end_classification.py -v
 - 低置信样本是否进入 LLM 二次判定；
 - 插件是否能在 GitHub 页面正确渲染分类徽标。
 
-### 持续集成
+### 7.4 持续集成
 
 项目可通过 GitHub Actions 配置自动化测试流程，在每次提交或 Pull Request 时运行测试套件。
 
@@ -471,7 +471,7 @@ Automated-GitHub-Repository-Categorization-Chrome-Extension/
 
 项目通过 `.env` 文件管理后端服务、GitHub Token 和大模型 API Key。
 
-### 环境变量
+### 9.1环境变量
 
 ```env
 # Backend
@@ -492,7 +492,7 @@ KIMI_BASE_URL=https://api.moonshot.cn/v1
 KIMI_MODEL=kimi-k2-turbo-preview
 ```
 
-### 配置项说明
+### 9.2 配置项说明
 
 | 配置项 | 说明 |
 |---|---|
@@ -618,20 +618,20 @@ curl -X POST "http://127.0.0.1:8000/domain" \
 
 ## 11. 应用场景
 
-### 开源仓库浏览辅助
+### 11.1 开源仓库浏览辅助
 
 用户在浏览 GitHub 仓库时，可以快速判断项目属于 Web 应用、服务端应用、开发工具、AI 应用等类别，减少人工阅读 README 的时间。
 
-### 开源项目检索与筛选
+### 11.2 开源项目检索与筛选
 
 在搜索页、Trending 页和 Topics 页中批量展示分类结果，帮助用户更快筛选目标领域项目。
 
-### 开源生态研究
+### 11.3 开源生态研究
 
 研究者可以利用后端 API 对仓库样本进行自动分类，为开源项目演化、领域差异分析、社区生态研究提供数据基础。
 
 
-### 企业技术选型
+### 11.4 企业技术选型
 
 企业或团队在调研开源组件时，可以通过分类结果快速识别候选项目所属领域，辅助技术选型和项目评估。
 
