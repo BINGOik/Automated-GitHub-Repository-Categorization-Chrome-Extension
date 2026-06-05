@@ -394,9 +394,6 @@ Automated-GitHub-Repository-Categorization-Chrome-Extension/
 │   ├── popup.html                     # 插件弹窗页面
 │   ├── popup.js                       # 插件开关与配置逻辑
 │   ├── content.js                     # GitHub 页面解析与徽标渲染
-│   ├── background.js                  # 后台通信脚本
-│   ├── styles.css                     # 分类徽标样式
-│   └── icons/                         # 插件图标
 │
 ├── backend/                           # Flask 后端分类服务
 │   ├── domain_get.py                  # 服务入口与 API 路由
