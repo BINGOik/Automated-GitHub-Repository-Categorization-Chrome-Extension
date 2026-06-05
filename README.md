@@ -519,25 +519,26 @@ git clone https://github.com/BINGOik/Automated-GitHub-Repository-Categorization-
 cd Automated-GitHub-Repository-Categorization-Chrome-Extension
 ```
 
-创建虚拟环境：
+创建虚拟环境:
 
 ```bash
 python -m venv .venv
 ```
 
-激活虚拟环境：
+激活虚拟环境:
 
+```bash
 # Windows
 .venv\Scripts\activate
 ```
 
-安装依赖：
+安装依赖:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-复制环境变量文件：
+复制环境变量文件:
 
 ```bash
 cp .env.example .env
