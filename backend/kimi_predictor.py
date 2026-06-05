@@ -22,7 +22,7 @@ class DomainClassifier:
     def __init__(
         self,
         api_key: str,
-        model: str = "kimi-k2-turbo-preview",
+        model: str = "moonshot-v1-32k-vision-preview",
         base_url: str = "https://api.moonshot.cn/v1",
         timeout: float = 30.0,
         use_proxy: bool = False,
@@ -63,7 +63,7 @@ class DomainClassifier:
             resp = self.client.chat.completions.create(
                 model=model or self.model,
                 messages=messages,
-                temperature=0,
+                temperature=1,
                 timeout=self.timeout,
             )
             content = resp.choices[0].message.content
@@ -98,7 +98,7 @@ class DomainClassifier:
             + predictions_str
             + ". "
             "We believe there may be issues with the labeling. Please relabel this project according to its actual "
-            "application scope. Please provide the Result: and Reasons: "
+            "application scope. Please only provide the Result:"
             + readme_text
         )
 

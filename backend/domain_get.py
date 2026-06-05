@@ -18,7 +18,7 @@ predictor = Predictor(
 )
 
 
-GITHUB_TOKEN = "your_api"
+GITHUB_TOKEN = "***"
 
 
 PROB_GAP_THRESHOLD = 0.15
