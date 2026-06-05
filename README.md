@@ -382,80 +382,88 @@ pytest tests/integration/test_end_to_end_classification.py -v
 
 ```text
 Automated-GitHub-Repository-Categorization-Chrome-Extension/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── .env.example
-├── requirements.txt
-├── package.json
+├── README.md                         # 项目主说明文档
+├── .env.example                      # 环境变量示例文件
+├── .gitignore                        # Git 忽略规则
+├── requirements.txt                  # Python 后端依赖列表
+├── package.json                      # Chrome Extension 检查与测试脚本配置
 │
-├── extension/                         # Chrome Extension 前端
-│   ├── manifest.json                  # 插件配置文件
-│   ├── popup.html                     # 插件弹窗页面
-│   ├── popup.js                       # 插件开关与配置逻辑
-│   ├── content.js                     # GitHub 页面解析与徽标渲染
+├── extension/                        # Chrome Extension 前端代码
+│   ├── manifest.json                 # Chrome 插件清单文件，声明权限、脚本与匹配页面
+│   ├── content.js                    # 内容脚本，负责解析 GitHub 页面并渲染分类徽标
+│   ├── popup.html                    # 插件弹窗页面结构
+│   └── popup.js                      # 插件弹窗交互逻辑、开关状态与配置读取
 │
-├── backend/                           # Flask 后端分类服务
-│   ├── domain_get.py                  # 服务入口与 API 路由
-│   ├── svm_predictor.py               # SVM 分类器
-│   ├── readme_words.py                # README 关键词提取
-│   ├── gpt_predictor.py               # GPT 二次判定模块
-│   ├── kimi_predictor.py              # Kimi 二次判定模块
-│   ├── linear_svc_model.pkl           # 训练好的 SVM 模型
-│   ├── scaler.pkl                     # 特征标准化器
-│   ├── label_mapping.pkl              # 标签映射
-│   ├── keyword_dict.pkl               # 关键词字典
-│   └── label_encoder.pkl              # 标签编码器
+├── backend/                          # 本地后端分类服务
+│   ├── domain_get.py                 # 后端服务入口，提供仓库领域分类 API
+│   ├── readme_words.py               # README 文本获取与关键词处理相关逻辑
+│   ├── svm_predictor.py              # SVM 小模型预测模块
+│   ├── gpt_predictor.py              # GPT 大模型二次判定模块
+│   ├── kimi_predictor.py             # Kimi / Moonshot 大模型二次判定模块
+│   ├── linear_svc_model.pkl          # 已训练的 Linear SVC 分类模型
+│   ├── scaler.pkl                    # 特征标准化器
+│   ├── label_mapping.pkl             # 分类标签映射文件
+│   ├── label_encoder.pkl             # 标签编码器
+│   └── keyword_dict.pkl              # 关键词字典特征文件
 │
-├── experiments/                       # 论文实验与模型训练流程
-│   ├── 01_tfidf_keywords.py
-│   ├── 02_llm_keywords.py
-│   ├── 03_repo_feature_extraction.py
-│   ├── 04_structure_features.py
-│   ├── 05_semantic_features.py
-│   ├── 06_model_comparison.py
+├── experiments/                      # 实验流程与模型训练相关脚本
+│   ├── 01_tfidf_keywords.py          # 基于 TF-IDF 的关键词提取实验
+│   ├── 02_llm_keywords.py            # 基于 LLM 的关键词生成实验
+│   ├── 03_repo_feature_extraction.py # 仓库基础特征抽取实验
+│   ├── 04_structure_features.py      # 仓库结构特征构造实验
+│   ├── 05_semantic_features.py       # 语义特征构造实验
+│   ├── 06_model_comparison.py        # 不同分类模型对比实验
 │   ├── 07_small_model_probabilities.py
+│   │                                  # 小模型概率输出与置信度分析
 │   ├── 08_llm_interactive_correction.py
-│   ├── 09_result_integration.py
-│   ├── 10_final_evaluation.py
-│   └── README.md
+│   │                                  # LLM 交互式修正实验
+│   ├── 09_result_integration.py      # 实验结果整合脚本
+│   ├── 10_final_evaluation.py        # 最终性能评估脚本
+│   └── README.md                     # 实验目录说明文档
 │
-├── tests/                             # 测试文件
-│   ├── backend/
-│   │   ├── test_api_classify.py
-│   │   ├── test_feature_extractor.py
-│   │   ├── test_model_predictor.py
-│   │   └── test_llm_refiner.py
-│   ├── extension/
-│   │   ├── test_badge_rendering.js
-│   │   └── test_content_parser.js
-│   ├── integration/
+├── tests/                            # 自动化测试目录
+│   ├── README.md                     # 测试目录说明
+│   │
+│   ├── backend/                      # 后端相关测试
+│   │   ├── test_api_classify.py      # 分类 API 测试
+│   │   ├── test_feature_extractor.py # 特征抽取逻辑测试
+│   │   ├── test_model_predictor.py   # SVM 模型预测逻辑测试
+│   │   └── test_llm_refiner.py       # LLM 二次判定逻辑测试
+│   │
+│   ├── extension/                    # Chrome Extension 前端测试
+│   │   ├── test_badge_rendering.js   # 分类徽标渲染测试
+│   │   └── test_content_parser.js    # GitHub 页面解析测试
+│   │
+│   ├── integration/                  # 集成测试
 │   │   └── test_end_to_end_classification.py
-│   ├── fixtures/
-│   │   ├── sample_readme_web.md
-│   │   ├── sample_readme_plugin.md
-│   │   └── sample_response.json
-│   └── README.md
+│   │                                  # 从输入仓库到分类结果的端到端测试
+│   │
+│   └── fixtures/                     # 测试样例数据
+│       ├── sample_readme_plugin.md   # 插件类项目 README 样例
+│       ├── sample_readme_web.md      # Web 类项目 README 样例
+│       └── sample_response.json      # 模拟 API 响应数据
 │
-├── docs/                              # 项目文档
-│   ├── api.md
-│   ├── method.md
-│   ├── categories.md
-│   └── testing.md
+├── docs/                             # 项目中文文档
+│   ├── api.md                        # 后端 API 使用说明
+│   ├── categories.md                 # 12 类领域分类体系说明
+│   ├── method.md                     # 方法设计与交互式蒸馏流程说明
+│   └── testing.md                    # 测试方案、运行方式与覆盖范围说明
 │
-├── assets/                            # README 图片资源
-│   ├── use-case-diagram.png
+├── assets/                           # README 与文档使用的图片资源
+│   ├── use-case-diagram.png          # 用例图
 │   ├── requirement-sequence-diagram.png
+│   │                                  # 需求顺序图
 │   ├── interactive-distillation-workflow.png
-│   ├── performance-comparison.png
-│   ├── system-architecture.png
-│   ├── demo-repo-page.png
-│   ├── demo-search-page.png
-│   └── demo-popup.png
+│   │                                  # 交互式蒸馏流程图
+│   ├── performance-comparison.png    # 性能对比图
+│   ├── system-architecture.png       # 系统架构图
+│   ├── demo-repo-page.png            # 仓库详情页插件效果图
+│   ├── demo-search-page.png          # 搜索页插件效果图
+│   └── demo-popup.png                # 插件弹窗效果图
 │
-└── .github/
+└── .github/                          # GitHub 配置目录
     └── workflows/
-        └── ci.yml
+        └── ci.yml                    # GitHub Actions 持续集成配置
 ```
 
 ---
