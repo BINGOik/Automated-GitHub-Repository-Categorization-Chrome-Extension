@@ -1,4 +1,8 @@
-﻿{
-  "category": "Browser Extension",
-  "confidence": 0.95
+{
+  "tags": "chrome extension github badge",
+  "result": "应用插件",
+  "svm_result": [
+    {"class": "应用插件", "prob": 0.86},
+    {"class": "代码开发工具或插件", "prob": 0.08}
+  ]
 }

@@ -1,3 +1,4 @@
-﻿# Sample Web Project
+# Sample Web Project
 
-This is a sample README for a web application repository.
+A frontend and backend web application built with React, Flask, REST APIs,
+routing, authentication, and browser-based dashboards.
