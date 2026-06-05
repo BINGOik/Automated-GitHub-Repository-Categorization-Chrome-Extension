@@ -325,7 +325,6 @@ pytest tests/ --cov=backend --cov-report=html --cov-report=term-missing
 查看覆盖率报告：
 
 ```bash
-open htmlcov/index.html      # macOS / Linux
 start htmlcov/index.html     # Windows
 ```
 
