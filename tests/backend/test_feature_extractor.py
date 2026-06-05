@@ -32,14 +32,14 @@ def test_extract_keywords_removes_fenced_code_blocks(readme_words_module):
     assert "token" not in result
 
 
-def test_extract_keywords_removes_inline_code(feature_extractor_module):
+def test_extract_keywords_removes_inline_code(readme_words_module):
     text = """
     This dashboard helps users run analytics.
 
     Please execute `zxqinlineonlycommand zxqinlineonlypackage` before deployment.
     """
 
-    keywords = feature_extractor_module.extract_keywords_from_readme(text)
+    keywords = readme_words_module.extract_keywords_from_readme(text)
     words = keywords.split()
 
     assert "dashboard" in words
