@@ -32,15 +32,21 @@ def test_extract_keywords_removes_fenced_code_blocks(readme_words_module):
     assert "token" not in result
 
 
-def test_extract_keywords_removes_inline_code(readme_words_module):
-    result = readme_words_module.extract_keywords_from_readme(
-        "Install with `pip install package` and run the dashboard."
-    )
+def test_extract_keywords_removes_inline_code(feature_extractor_module):
+    text = """
+    This dashboard helps users run analytics.
 
-    words = result.split()
+    Please execute `zxqinlineonlycommand zxqinlineonlypackage` before deployment.
+    """
+
+    keywords = feature_extractor_module.extract_keywords_from_readme(text)
+    words = keywords.split()
+
     assert "dashboard" in words
-    assert "pip" not in words
-    assert "install" not in words
+    assert "analytics" in words
+    assert "zxqinlineonlycommand" not in words
+    assert "zxqinlineonlypackage" not in words
+
 
 
 def test_extract_keywords_removes_urls_but_keeps_markdown_link_text(readme_words_module):
