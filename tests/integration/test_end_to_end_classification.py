@@ -98,4 +98,8 @@ def test_end_to_end_returns_empty_when_svm_returns_no_candidates(
     )
 
     assert response.status_code == 200
-    assert response.get_json() == {"tags": "unknown", "result": "", "svm_result": []}
+    data = response.get_json()
+    assert data["tags"] == "unknown"
+    assert data["result"] == ""
+    assert data["svm_result"] == []
+    assert data["translated"] is False

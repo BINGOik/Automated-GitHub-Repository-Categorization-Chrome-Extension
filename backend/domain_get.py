@@ -1,11 +1,15 @@
 import os
 import base64
+import re
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
 from svm_predictor import Predictor
 from readme_words import extract_keywords_from_readme
 from kimi_predictor import DomainClassifier
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -18,18 +22,24 @@ predictor = Predictor(
 )
 
 
-GITHUB_TOKEN = "***"
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "").strip()
 
 
-PROB_GAP_THRESHOLD = 0.15
+PROB_GAP_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.15"))
+CJK_PATTERN = re.compile(r"[\u3400-\u9fff]")
 
 
-def fetch_readme(owner: str, repo: str) -> str:
-    if not GITHUB_TOKEN:
+def get_github_token(override_token: str = "") -> str:
+    return (override_token or os.getenv("GITHUB_TOKEN", "") or GITHUB_TOKEN).strip()
+
+
+def fetch_readme(owner: str, repo: str, github_token: str = "") -> str:
+    token = get_github_token(github_token)
+    if not token:
         raise RuntimeError("GITHUB_TOKEN 未配置（请设置环境变量 GITHUB_TOKEN）")
 
     headers_raw = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github.v3.raw",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "domain-classifier-backend",
@@ -57,6 +67,42 @@ def fetch_readme(owner: str, repo: str) -> str:
     )
 
 
+def should_translate_readme(readme_text: str) -> bool:
+    if not readme_text:
+        return False
+
+    cjk_count = len(CJK_PATTERN.findall(readme_text))
+    if cjk_count < 8:
+        return False
+
+    alpha_count = sum(1 for ch in readme_text if ch.isalpha())
+    return cjk_count / max(alpha_count, 1) >= 0.05
+
+
+def translate_readme_if_needed(readme_text: str, api_key: str) -> tuple[str, bool, str | None]:
+    if not should_translate_readme(readme_text):
+        return readme_text, False, None
+
+    llm_key = (api_key or os.getenv("KIMI_API_KEY", "")).strip()
+    if not llm_key:
+        return (
+            readme_text,
+            False,
+            "Chinese README detected but no api_key or KIMI_API_KEY provided; using original README",
+        )
+
+    try:
+        translated = DomainClassifier(api_key=llm_key).translate_to_english(readme_text)
+    except Exception as e:
+        app.logger.exception("README 翻译失败")
+        return readme_text, False, "README translation failed; using original README: " + str(e)
+
+    if not translated:
+        return readme_text, False, "README translation returned empty text; using original README"
+
+    return translated, True, None
+
+
 @app.route("/domain", methods=["POST", "OPTIONS"])
 def domain_post():
     if request.method == "OPTIONS":
@@ -82,20 +128,34 @@ def domain_post():
 
     # ✅ GPT 需要的 OpenAI Key（沿用你旧版逻辑：前端传 api_key）
     api_key = (data.get("api_key") or "").strip()
+    llm_api_key = (api_key or os.getenv("KIMI_API_KEY", "")).strip()
+    github_token = (data.get("github_token") or "").strip()
 
     # 1) 后端拉 README
     try:
-        readme_text = fetch_readme(owner, repo)
+        if github_token:
+            readme_text = fetch_readme(owner, repo, github_token)
+        else:
+            readme_text = fetch_readme(owner, repo)
     except Exception as e:
         app.logger.exception("GitHub README 获取失败")
         return jsonify({"error": str(e)}), 500
 
-    # 2) 抽关键词
-    keywords = extract_keywords_from_readme(readme_text)
-    if not keywords:
-        return jsonify({"tags": keywords, "result": "", "svm_result": []})
+    # 2) 中文 README 先翻译为英文，适配英文特征训练的 SVM
+    readme_for_model, translated, translation_warning = translate_readme_if_needed(
+        readme_text,
+        llm_api_key,
+    )
 
-    # 3) SVM 预测
+    # 3) 抽关键词
+    keywords = extract_keywords_from_readme(readme_for_model)
+    if not keywords:
+        response = {"tags": keywords, "result": "", "svm_result": [], "translated": translated}
+        if translation_warning:
+            response["translation_warning"] = translation_warning
+        return jsonify(response)
+
+    # 4) SVM 预测
     try:
         svm_result = predictor.predict_from_keyword(keywords)
     except Exception as e:
@@ -103,50 +163,65 @@ def domain_post():
         return jsonify({"error": "SVM预测失败: " + str(e)}), 500
 
     if not svm_result:
-        return jsonify({"tags": keywords, "result": "", "svm_result": []})
+        response = {"tags": keywords, "result": "", "svm_result": [], "translated": translated}
+        if translation_warning:
+            response["translation_warning"] = translation_warning
+        return jsonify(response)
 
-    # 4) 概率差判断
+    # 5) 概率差判断
     prob1 = svm_result[0].get("prob", 0.0) if len(svm_result) > 0 else 0.0
     prob2 = svm_result[1].get("prob", 0.0) if len(svm_result) > 1 else 0.0
 
     # ✅ 差值足够大：直接用 SVM Top1
     if (prob1 - prob2) >= PROB_GAP_THRESHOLD:
         print("svm use")
-        return jsonify({
-            "tags": keywords,
-            "result": svm_result[0]["class"],
-            "svm_result": svm_result
-        })
-
-    # ✅ 差值不够：用你写好的 DomainClassifier 做判定
-    if not api_key:
-        # 没有 key 无法调用 GPT：回退 Top1（也可改成直接报错）
-        return jsonify({
+        response = {
             "tags": keywords,
             "result": svm_result[0]["class"],
             "svm_result": svm_result,
-            "warning": "prob gap <= 0.15 but no api_key provided; fallback to svm top1"
-        })
+            "translated": translated,
+        }
+        if translation_warning:
+            response["translation_warning"] = translation_warning
+        return jsonify(response)
+
+    # ✅ 差值不够：用你写好的 DomainClassifier 做判定
+    if not llm_api_key:
+        # 没有 key 无法调用 GPT：回退 Top1（也可改成直接报错）
+        response = {
+            "tags": keywords,
+            "result": svm_result[0]["class"],
+            "svm_result": svm_result,
+            "translated": translated,
+            "warning": "prob gap <= 0.15 but no api_key provided; fallback to svm top1",
+        }
+        if translation_warning:
+            response["translation_warning"] = translation_warning
+        return jsonify(response)
 
     try:
-        domain_classifier = DomainClassifier(api_key=api_key)  # :contentReference[oaicite:1]{index=1}
+        domain_classifier = DomainClassifier(api_key=llm_api_key)  # :contentReference[oaicite:1]{index=1}
         prediction_dict = {}
         for i in range(min(len(svm_result), 12)):
             prediction_dict[f"Top{i + 1} Class"] = svm_result[i]["class"]
             prediction_dict[f"Top{i + 1} Probability"] = svm_result[i]["prob"]
 
         # 直接用你的 classify(readme_text, prediction_dict) :contentReference[oaicite:2]{index=2}
-        result = domain_classifier.classify(readme_text=readme_text, prediction_dict=prediction_dict)
+        result = domain_classifier.classify(readme_text=readme_for_model, prediction_dict=prediction_dict)
         print("kimi use")
     except Exception as e:
         app.logger.exception("大模型判定失败")
         return jsonify({"error": "大模型判定失败: " + str(e)}), 500
 
-    return jsonify({
+    response = {
         "tags": keywords,
         "result": result,
-        "svm_result": svm_result
-    })
+        "svm_result": svm_result,
+        "translated": translated,
+    }
+    if translation_warning:
+        response["translation_warning"] = translation_warning
+    return jsonify(response)
 
 
 if __name__ == "__main__":

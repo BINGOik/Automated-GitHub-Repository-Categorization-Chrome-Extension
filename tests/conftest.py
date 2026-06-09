@@ -51,10 +51,15 @@ class StubDomainClassifier:
     last_api_key = None
     last_readme_text = None
     last_prediction_dict = None
+    last_translation_text = None
 
     def __init__(self, api_key: str):
         type(self).last_api_key = api_key
         self.api_key = api_key
+
+    def translate_to_english(self, readme_text: str) -> str:
+        type(self).last_translation_text = readme_text
+        return "# OpenHarmony UI Kit\nA component library for HarmonyOS applications."
 
     def classify(self, readme_text: str, prediction_dict: dict):
         type(self).last_readme_text = readme_text

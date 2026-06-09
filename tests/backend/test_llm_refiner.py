@@ -73,3 +73,26 @@ def test_kimi_classify_extracts_result_without_calling_network(kimi_predictor_mo
     assert result == "人工智能和机器学习应用"
     assert captured["model"] == "moonshot-test"
     assert "Please only provide the Result:" in captured["messages"][0]["content"]
+
+
+def test_kimi_translate_to_english_preserves_markdown_without_calling_network(
+    kimi_predictor_module,
+):
+    captured = {}
+
+    classifier = object.__new__(kimi_predictor_module.DomainClassifier)
+    classifier.model = "moonshot-test"
+
+    def fake_chat(messages, model=None):
+        captured["messages"] = messages
+        captured["model"] = model
+        return "# OpenHarmony UI Kit\nA component library for HarmonyOS apps."
+
+    classifier.openai_sdk_chat_http_api = fake_chat
+
+    result = classifier.translate_to_english("# 鸿蒙组件库\n用于构建鸿蒙应用界面。")
+
+    assert result == "# OpenHarmony UI Kit\nA component library for HarmonyOS apps."
+    assert captured["model"] == "moonshot-test"
+    assert "Translate the README to English" in captured["messages"][0]["content"]
+    assert "Preserve Markdown structure" in captured["messages"][0]["content"]

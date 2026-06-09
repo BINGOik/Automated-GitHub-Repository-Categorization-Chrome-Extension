@@ -1,4 +1,4 @@
-# GitHub Repository Domain Classifier
+# HarmonyOS Open Source Project Domain Classifier
 
 ![Python](https://img.shields.io/badge/Python-3.12%2B-blue)
 ![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-green)
@@ -6,25 +6,26 @@
 ![Model](https://img.shields.io/badge/Model-SVM%20%2B%20LLM-orange)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-> 基于交互式蒸馏的 GitHub 开源仓库细粒度领域自动分类 Chrome 插件
+> 面向华为鸿蒙/OpenHarmony 开源生态治理的细粒度项目领域自动分类 Chrome 插件
 
-GitHub Repository Domain Classifier 是一个面向 GitHub 开源仓库浏览场景的细粒度领域分类工具。项目通过 Chrome Extension 在仓库页面、搜索页、Trending 页、Topics 页等位置自动识别仓库类别，并将分类结果以徽标形式展示在页面中。
+HarmonyOS Open Source Project Domain Classifier 是一个面向华为鸿蒙/OpenHarmony 相关开源项目浏览、识别与生态治理场景的细粒度领域分类工具。项目通过 Chrome Extension 在仓库页面、搜索页、Trending 页、Topics 页等位置自动识别开源项目类别，并将分类结果以徽标形式展示在页面中，帮助用户快速理解项目定位、技术方向与生态角色。
 
-项目将论文中的“交互式蒸馏”方法工程化为可运行系统：先由 SVM 小模型完成快速分类，当分类置信度不足时，再调用大模型进行二次判定，从而兼顾分类效率与复杂样本判断能力。
+项目将论文中的“交互式蒸馏”方法工程化为可运行系统：先由 SVM 小模型完成快速分类，当分类置信度不足时，再调用大模型进行二次判定。针对鸿蒙生态项目 README 中文内容较多、而现有分类模型主要基于英文特征训练的问题，系统在后端加入 README 英文翻译预处理流程，使中文项目说明能够更稳定地进入关键词提取与模型推理环节。
 
 ---
 
 ## 1. 项目简介
 
-本项目面向开发者、开源研究者和开源项目使用者，解决 GitHub 仓库领域类别难以快速识别的问题。
+本项目面向鸿蒙生态开发者、开源社区治理者、开源研究者和项目使用者，解决华为鸿蒙/OpenHarmony 相关开源项目领域类别难以快速识别、批量梳理和生态分析的问题。
 
 核心目标包括：
 
-- 自动获取 GitHub 仓库 README 与基础信息；
-- 对开源仓库进行 12 类细粒度领域分类；
+- 自动获取开源项目 README 与基础信息；
+- 支持中文 README 到英文语义特征的转换，适配现有英文训练模型；
+- 对鸿蒙生态相关开源项目进行 12 类细粒度领域分类；
 - 在 GitHub 页面中实时展示分类徽标；
 - 使用 SVM + LLM 的协同策略提升低置信样本判断能力；
-- 提供本地后端 API，便于扩展到批量分类、研究数据标注等场景。
+- 提供本地后端 API，便于扩展到生态项目盘点、批量分类、治理分析和研究数据标注等场景。
 
 ### 1.1 用例图
 
@@ -38,18 +39,18 @@ GitHub Repository Domain Classifier 是一个面向 GitHub 开源仓库浏览场
 
 | 用户角色 | 使用目标 | 项目能力 |
 |---|---|---|
-| GitHub 普通用户 | 快速判断仓库所属领域 | 仓库页面自动展示分类徽标 |
-| 开源项目开发者 | 判断项目定位与相似项目类别 | 基于 README 与关键词特征进行分类 |
-| 开源研究者 | 获取细粒度分类样本 | 支持稳定的后端分类 API |
+| 鸿蒙生态开发者 | 快速判断项目所属领域与生态角色 | 仓库页面自动展示分类徽标 |
+| 开源项目维护者 | 梳理项目定位与相似项目类别 | 基于 README 翻译、关键词特征与模型推理进行分类 |
+| 开源社区治理者 | 获取细粒度分类样本与项目盘点依据 | 支持稳定的后端分类 API |
 | 项目体验者 | 快速理解系统价值 | 插件效果、架构图、实验结果集中展示 |
 
-项目运行后，用户只需要正常浏览 GitHub 页面，即可在仓库名称旁看到自动生成的领域分类结果。
+项目运行后，用户只需要正常浏览 GitHub 页面，即可在鸿蒙生态相关仓库名称旁看到自动生成的领域分类结果。
 
 ---
 
 ## 2. 支持的开源项目领域类别
 
-项目支持 12 类开源项目领域分类，覆盖常见应用软件、开发工具、服务端项目、插件类项目以及无法明确识别的特殊项目。
+项目支持 12 类开源项目领域分类，可用于梳理鸿蒙生态中的应用软件、开发工具、服务端项目、插件类项目以及暂时无法明确识别的特殊项目。
 
 | 序号 | 类别 | 说明 |
 |---:|---|---|
@@ -66,13 +67,13 @@ GitHub Repository Domain Classifier 是一个面向 GitHub 开源仓库浏览场
 | 11 | 其他 | 不属于上述主要类别，但仍具有可识别用途的项目 |
 | 12 | 未分类 | README 或项目信息过少，无法可靠判断类别的项目 |
 
-该分类体系适用于 GitHub 仓库浏览、项目检索、开源生态分析和研究数据预处理等任务。
+该分类体系适用于鸿蒙生态项目浏览、项目检索、开源生态治理分析和研究数据预处理等任务。
 
 ---
 
 ## 3. 方法设计：交互式蒸馏分类框架
 
-项目采用“小模型快速分类 + 大模型低置信修正”的交互式蒸馏框架。
+项目采用“中文 README 翻译预处理 + 小模型快速分类 + 大模型低置信修正”的交互式蒸馏框架。
 
 ![Interactive Distillation Workflow](./assets/interactive-distillation-workflow.png)
 
@@ -81,26 +82,27 @@ GitHub Repository Domain Classifier 是一个面向 GitHub 开源仓库浏览场
 1. Chrome 插件识别当前 GitHub 页面中的仓库信息；
 2. 前端向本地 Flask 后端发送仓库 `owner/repo`；
 3. 后端通过 GitHub API 获取仓库 README；
-4. 系统抽取 README 关键词与文本特征；
-5. SVM 小模型输出类别概率分布；
-6. 根据 Top1 与 Top2 概率差判断是否需要大模型介入；
-7. 返回最终分类结果，并由前端渲染到 GitHub 页面。
+4. 当 README 以中文内容为主时，系统先调用 Kimi 将 README 翻译为英文；
+5. 系统抽取 README 关键词与文本特征；
+6. SVM 小模型输出类别概率分布；
+7. 根据 Top1 与 Top2 概率差判断是否需要大模型介入；
+8. 返回最终分类结果，并由前端渲染到 GitHub 页面。
 
-这种设计避免了对所有仓库直接调用大模型，在保证响应速度的同时，将大模型能力集中用于边界样本与低置信样本。
+这种设计避免了对所有项目直接调用大模型分类，在保证响应速度的同时，将大模型能力集中用于中文 README 特征适配、边界样本与低置信样本判断。
 
 ### 3.1 小模型初次分类
 
-小模型分类阶段负责完成大多数仓库的快速判断。
+小模型分类阶段负责完成大多数鸿蒙生态项目的快速判断。
 
 | 环节 | 说明 |
 |---|---|
-| 输入 | GitHub 仓库 README、仓库基础信息、关键词特征 |
+| 输入 | 开源项目 README、仓库基础信息、翻译后的英文文本与关键词特征 |
 | 特征处理 | 文本清洗、关键词抽取、向量化、特征标准化 |
 | 分类模型 | 训练好的 SVM 分类器 |
 | 输出 | 12 类类别概率分布 |
 | 优势 | 推理速度快、本地可运行、成本低、结果稳定 |
 
-小模型适合处理类别特征明显的仓库。例如，README 中包含明显的 Web 框架、移动端框架、IDE 插件、服务端 API 等信息时，SVM 可以快速给出稳定判断。
+小模型适合处理类别特征明显的项目。例如，README 中包含明显的 HarmonyOS 应用、ArkUI 组件、开发工具、IDE 插件、服务端 API 等信息时，SVM 可以快速给出稳定判断。
 
 ### 3.2 低置信样本的大模型二次判定
 
@@ -120,10 +122,11 @@ else:
 大模型二次判定主要用于处理以下情况：
 
 - README 描述较长，但核心用途不明确；
-- 项目同时具备多个领域特征；
+- 中文 README 翻译后仍存在多义表达或领域边界不清；
+- 项目同时具备多个鸿蒙生态领域特征；
 - Top1 与 Top2 类别概率接近；
 - 项目名称、描述、README 信息存在冲突；
-- 单纯关键词匹配容易误判的仓库。
+- 单纯关键词匹配容易误判的项目。
 
 二次判定阶段会结合候选类别、README 语义信息和关键词特征，让大模型在限定类别范围内完成最终判断，减少开放式生成带来的不稳定性。
 
@@ -131,7 +134,7 @@ else:
 
 ## 4. 实验结果与性能指标
 
-实验基于 30,310 个已标注开源仓库，分类体系包含 12 个细粒度领域类别。模型性能采用十折交叉验证进行评估。
+实验基于 30,310 个已标注开源仓库，分类体系包含 12 个细粒度领域类别。面向鸿蒙生态项目应用时，系统在推理前加入中文 README 翻译预处理，以复用现有英文特征训练模型。模型性能采用十折交叉验证进行评估。
 
 ![Performance Comparison](./assets/performance-comparison.png)
 
@@ -161,7 +164,7 @@ else:
 
 ## 5. 系统架构
 
-系统由 Chrome Extension 前端、本地 Flask 后端、GitHub 数据获取模块、SVM 分类模块和 LLM 二次判定模块组成。
+系统由 Chrome Extension 前端、本地 Flask 后端、GitHub 数据获取模块、README 翻译预处理模块、SVM 分类模块和 LLM 二次判定模块组成。
 
 ![System Architecture](./assets/system-architecture.png)
 
@@ -172,6 +175,7 @@ else:
 | 浏览器扩展层 | content script / popup / background | 页面解析、插件开关、请求后端、结果渲染 |
 | 后端服务层 | Flask API | 接收分类请求，组织分类流程 |
 | 数据获取层 | GitHub API Fetcher | 获取仓库 README 与基础信息 |
+| 翻译预处理层 | Kimi README Translator | 将中文 README 转换为英文语义输入 |
 | 特征处理层 | Keyword Extractor / Vectorizer | 提取关键词、构造模型输入特征 |
 | 模型推理层 | SVM Predictor | 输出类别概率分布 |
 | 二次判定层 | GPT / Kimi Refiner | 对低置信样本进行语义判断 |
@@ -181,18 +185,19 @@ else:
 
 - 仓库详情页分类：在 GitHub 仓库标题附近展示领域徽标；
 - 列表页批量分类：支持 Search、Trending、Topics、Explore 等页面；
+- 中文 README 适配：通过 Kimi 翻译将中文项目说明转换为英文特征输入；
 - 插件开关控制：可通过 popup 快速启用或关闭分类功能；
 - LLM 辅助判定：可配置 GPT 或 Kimi API Key；
 - 本地后端推理：后端服务本地运行，便于调试和扩展；
 - 低置信样本处理：通过阈值机制判断是否调用大模型。
 
-整体架构强调“轻量前端 + 本地后端 + 可解释分类流程”，适合比赛展示、实际使用和后续研究扩展。
+整体架构强调“轻量前端 + 本地后端 + 可解释分类流程”，适合鸿蒙生态治理场景下的比赛展示、实际使用和后续研究扩展。
 
 ---
 
 ## 6. 后端 API 说明
 
-后端提供仓库领域分类接口，供 Chrome Extension 或其他客户端调用。
+后端提供开源项目领域分类接口，供 Chrome Extension 或其他客户端调用。
 
 默认服务地址：
 
@@ -212,7 +217,7 @@ POST /domain
 |---|---|
 | 请求方式 | POST |
 | Content-Type | application/json |
-| 功能 | 根据 GitHub 仓库信息返回领域分类结果 |
+| 功能 | 根据 GitHub 仓库信息返回鸿蒙生态项目领域分类结果 |
 | 调用方 | Chrome Extension / API Client |
 | 默认端口 | 8000 |
 
@@ -220,8 +225,8 @@ POST /domain
 
 ```json
 {
-  "owner": "facebook",
-  "repo": "react"
+  "owner": "openharmony",
+  "repo": "arkui_ace_engine"
 }
 ```
 
@@ -229,14 +234,16 @@ POST /domain
 
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
-| owner | string | 是 | GitHub 仓库所属用户或组织 |
+| owner | string | 是 | GitHub 仓库所属用户或组织，例如 `openharmony` |
 | repo | string | 是 | GitHub 仓库名称 |
+| api_key | string | 否 | Kimi / OpenAI 兼容 API Key，用于中文 README 翻译与低置信样本二次判定 |
+| github_token | string | 否 | GitHub Token，用于提高 GitHub API 请求额度 |
 
 也可以根据实际后端实现扩展为：
 
 ```json
 {
-  "url": "https://github.com/facebook/react"
+  "url": "https://github.com/openharmony/arkui_ace_engine"
 }
 ```
 
@@ -245,11 +252,12 @@ POST /domain
 ```json
 {
   "success": true,
-  "owner": "facebook",
-  "repo": "react",
-  "category": "网页应用",
+  "owner": "openharmony",
+  "repo": "arkui_ace_engine",
+  "category": "移动应用",
   "confidence": 0.87,
   "source": "svm",
+  "translated": true,
   "top_candidates": [
     {
       "label": "网页应用",
@@ -273,6 +281,7 @@ POST /domain
 | category | 最终分类结果 |
 | confidence | 分类置信度 |
 | source | 分类来源，可为 `svm` 或 `llm` |
+| translated | README 是否经过英文翻译预处理 |
 | top_candidates | SVM 输出的候选类别及概率 |
 
 异常响应示例：
@@ -290,15 +299,15 @@ POST /domain
 
 ### 7.1 测试套件概览
 
-项目测试覆盖后端分类服务、GitHub 数据获取、特征抽取、模型推理、LLM 二次判定、Chrome 插件页面解析和端到端分类链路。
+项目测试覆盖后端分类服务、GitHub 数据获取、中文 README 翻译预处理、特征抽取、模型推理、LLM 二次判定、Chrome 插件页面解析和端到端分类链路。
 
 | 测试模块 | 测试数量 | 覆盖范围 |
 |---|---:|---|
-| 后端 API | 8 | 分类接口、请求校验、异常响应 |
+| 后端 API | 11 | 分类接口、请求校验、中文 README 翻译、异常响应 |
 | GitHub 数据获取 | 6 | README 获取、仓库信息解析、超时处理 |
 | 特征抽取 | 8 | 文本清洗、关键词抽取、向量化流程 |
 | 模型推理 | 6 | SVM 分类、概率输出、标签映射 |
-| 大模型二次判定 | 5 | 低置信样本识别、LLM refinement 流程 |
+| 大模型二次判定 | 6 | README 翻译、低置信样本识别、LLM refinement 流程 |
 | Chrome 插件 | 8 | 仓库页面解析、徽标渲染、配置读取 |
 | 集成测试 | 5 | 从 GitHub 页面到分类结果展示的完整链路 |
 
@@ -359,6 +368,7 @@ pytest tests/integration/test_end_to_end_classification.py -v
 
 - 分类接口是否稳定返回标准 JSON；
 - GitHub README 获取失败时是否正确降级；
+- 中文 README 是否在关键词抽取前完成英文翻译预处理；
 - SVM 是否输出合法类别与概率；
 - 低置信样本是否进入 LLM 二次判定；
 - 插件是否能在 GitHub 页面正确渲染分类徽标。
@@ -394,11 +404,11 @@ Automated-GitHub-Repository-Categorization-Chrome-Extension/
 │   └── popup.js                      # 插件弹窗交互逻辑、开关状态与配置读取
 │
 ├── backend/                          # 本地后端分类服务
-│   ├── domain_get.py                 # 后端服务入口，提供仓库领域分类 API
-│   ├── readme_words.py               # README 文本获取与关键词处理相关逻辑
+│   ├── domain_get.py                 # 后端服务入口，提供项目领域分类 API 与 README 翻译调度
+│   ├── readme_words.py               # README 文本清洗与关键词处理相关逻辑
 │   ├── svm_predictor.py              # SVM 小模型预测模块
 │   ├── gpt_predictor.py              # GPT 大模型二次判定模块
-│   ├── kimi_predictor.py             # Kimi / Moonshot 大模型二次判定模块
+│   ├── kimi_predictor.py             # Kimi / Moonshot README 翻译与大模型二次判定模块
 │   ├── linear_svc_model.pkl          # 已训练的 Linear SVC 分类模型
 │   ├── scaler.pkl                    # 特征标准化器
 │   ├── label_mapping.pkl             # 分类标签映射文件
@@ -469,7 +479,7 @@ Automated-GitHub-Repository-Categorization-Chrome-Extension/
 
 ## 9. 配置说明
 
-项目通过 `.env` 文件管理后端服务、GitHub Token 和大模型 API Key。
+项目通过 `.env` 文件管理后端服务、GitHub Token 和大模型 API Key。Kimi API Key 可同时用于中文 README 英文翻译和低置信样本二次判定。
 
 ### 9.1环境变量
 
@@ -501,9 +511,9 @@ KIMI_MODEL=kimi-k2-turbo-preview
 | CONFIDENCE_THRESHOLD | Top1 与 Top2 概率差阈值 |
 | GITHUB_TOKEN | GitHub API Token，用于提高请求限额 |
 | ENABLE_LLM_REFINE | 是否启用大模型二次判定 |
-| KIMI_API_KEY | Kimi API Key |
+| KIMI_API_KEY | Kimi API Key，用于中文 README 翻译与低置信样本二次判定 |
 
-如果未配置 LLM API Key，系统仍可使用 SVM 完成本地分类，但低置信样本不会进入大模型二次判定。
+如果未配置 LLM API Key，系统仍可使用 SVM 完成本地分类；但中文 README 将不会被翻译，低置信样本也不会进入大模型二次判定。
 
 ---
 
@@ -551,7 +561,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-根据需要编辑 `.env`，配置 `GITHUB_TOKEN` 和 LLM API Key。
+根据需要编辑 `.env`，配置 `GITHUB_TOKEN` 和 `KIMI_API_KEY`。不要将真实 Token 或 API Key 提交到公开仓库。
 
 ### 10.2 后端服务启动
 
@@ -585,8 +595,8 @@ http://127.0.0.1:8000/domain
 curl -X POST "http://127.0.0.1:8000/domain" \
   -H "Content-Type: application/json" \
   -d '{
-    "owner": "facebook",
-    "repo": "react"
+    "owner": "openharmony",
+    "repo": "arkui_ace_engine"
   }'
 ```
 
@@ -620,20 +630,20 @@ curl -X POST "http://127.0.0.1:8000/domain" \
 
 ### 11.1 开源仓库浏览辅助
 
-用户在浏览 GitHub 仓库时，可以快速判断项目属于 Web 应用、服务端应用、开发工具、AI 应用等类别，减少人工阅读 README 的时间。
+用户在浏览华为鸿蒙/OpenHarmony 相关 GitHub 仓库时，可以快速判断项目属于移动应用、开发工具、服务端应用、AI 应用等类别，减少人工阅读 README 的时间。
 
 ### 11.2 开源项目检索与筛选
 
-在搜索页、Trending 页和 Topics 页中批量展示分类结果，帮助用户更快筛选目标领域项目。
+在搜索页、Trending 页和 Topics 页中批量展示分类结果，帮助用户更快筛选目标领域项目，并辅助识别鸿蒙生态中的关键组件、工具链与应用项目。
 
 ### 11.3 开源生态研究
 
-研究者可以利用后端 API 对仓库样本进行自动分类，为开源项目演化、领域差异分析、社区生态研究提供数据基础。
+研究者和社区治理者可以利用后端 API 对鸿蒙生态项目样本进行自动分类，为开源项目演化、领域差异分析、生态健康度观察和社区治理研究提供数据基础。
 
 
 ### 11.4 企业技术选型
 
-企业或团队在调研开源组件时，可以通过分类结果快速识别候选项目所属领域，辅助技术选型和项目评估。
+企业或团队在调研鸿蒙生态开源组件时，可以通过分类结果快速识别候选项目所属领域，辅助技术选型、生态适配和项目评估。
 
 ---
 

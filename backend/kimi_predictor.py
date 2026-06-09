@@ -110,6 +110,30 @@ class DomainClassifier:
         response = self.openai_sdk_chat_http_api(messages, model=self.model)
         return self.extract_result_line(response)
 
+    def translate_to_english(self, readme_text: str) -> str:
+        """
+        Translate a README to English before keyword extraction.
+        The downstream SVM was trained on English features, so keeping Markdown
+        structure while translating prose gives the extractor better input.
+        """
+        if not readme_text:
+            return ""
+
+        system_prompt = (
+            "Translate the README to English for software project domain classification. "
+            "Preserve Markdown structure, headings, lists, tables, code fences, links, "
+            "package names, API names, product names, and technical terms. "
+            "Return only the translated README in English. Do not add explanations."
+        )
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": readme_text},
+        ]
+
+        response = self.openai_sdk_chat_http_api(messages, model=self.model)
+        return (response or "").strip()
+
     @staticmethod
     def extract_result_line(response: Optional[str]) -> str:
         """

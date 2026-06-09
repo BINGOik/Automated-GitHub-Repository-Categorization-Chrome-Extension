@@ -74,7 +74,66 @@ def test_domain_returns_empty_result_when_no_keywords(domain_module, fake_predic
     response = client.post("/domain", json={"owner": "x", "repo": "empty"})
 
     assert response.status_code == 200
-    assert response.get_json() == {"tags": "", "result": "", "svm_result": []}
+    data = response.get_json()
+    assert data["tags"] == ""
+    assert data["result"] == ""
+    assert data["svm_result"] == []
+    assert data["translated"] is False
+
+
+def test_domain_translates_chinese_readme_before_keyword_extraction(
+    domain_module, fake_predictor_factory
+):
+    seen = {}
+    domain_module.DomainClassifier.last_translation_text = None
+    domain_module.fetch_readme = lambda owner, repo: "# 鸿蒙组件库\n用于构建 HarmonyOS 应用界面。"
+
+    def fake_extract(readme_text):
+        seen["readme_text"] = readme_text
+        return "openharmony ui kit harmonyos applications"
+
+    domain_module.extract_keywords_from_readme = fake_extract
+    domain_module.predictor = fake_predictor_factory([
+        {"class": "移动应用", "prob": 0.88},
+        {"class": "网页应用", "prob": 0.06},
+    ])
+    client = domain_module.app.test_client()
+
+    response = client.post(
+        "/domain",
+        json={"owner": "openharmony", "repo": "arkui", "api_key": "kimi-test"},
+    )
+
+    data = response.get_json()
+    assert response.status_code == 200
+    assert seen["readme_text"].startswith("# OpenHarmony UI Kit")
+    assert domain_module.DomainClassifier.last_translation_text.startswith("# 鸿蒙组件库")
+    assert data["translated"] is True
+    assert data["result"] == "移动应用"
+
+
+def test_domain_skips_translation_for_english_readme(domain_module, fake_predictor_factory):
+    seen = {}
+    domain_module.DomainClassifier.last_translation_text = None
+    domain_module.fetch_readme = lambda owner, repo: "# OpenHarmony Tool\nBuild apps."
+
+    def fake_extract(readme_text):
+        seen["readme_text"] = readme_text
+        return "openharmony tool build apps"
+
+    domain_module.extract_keywords_from_readme = fake_extract
+    domain_module.predictor = fake_predictor_factory()
+    client = domain_module.app.test_client()
+
+    response = client.post(
+        "/domain",
+        json={"owner": "openharmony", "repo": "tool", "api_key": "kimi-test"},
+    )
+
+    assert response.status_code == 200
+    assert seen["readme_text"] == "# OpenHarmony Tool\nBuild apps."
+    assert domain_module.DomainClassifier.last_translation_text is None
+    assert response.get_json()["translated"] is False
 
 
 def test_domain_returns_500_when_svm_prediction_fails(domain_module, fake_predictor_factory):
@@ -129,3 +188,28 @@ def test_domain_uses_llm_refiner_when_low_confidence_and_api_key(
     assert data["result"] == "网页应用"
     assert domain_module.DomainClassifier.last_api_key == "test-key"
     assert domain_module.DomainClassifier.last_prediction_dict["Top1 Class"] == "应用插件"
+
+
+def test_domain_uses_env_kimi_key_for_low_confidence_refiner(
+    domain_module, fake_predictor_factory, monkeypatch
+):
+    monkeypatch.setenv("KIMI_API_KEY", "env-kimi-test")
+    domain_module.DomainClassifier.last_api_key = None
+    domain_module.fetch_readme = lambda owner, repo: "# Ambiguous HarmonyOS Tool"
+    domain_module.extract_keywords_from_readme = lambda text: "harmonyos tool extension"
+    domain_module.predictor = fake_predictor_factory([
+        {"class": "应用插件", "prob": 0.49},
+        {"class": "代码开发工具或插件", "prob": 0.43},
+    ])
+    client = domain_module.app.test_client()
+
+    response = client.post(
+        "/domain",
+        json={"owner": "openharmony", "repo": "ambiguous-tool"},
+    )
+
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data["result"] == "网页应用"
+    assert "warning" not in data
+    assert domain_module.DomainClassifier.last_api_key == "env-kimi-test"
